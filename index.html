@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8" />
+  <title>Sequential Redirect</title>
+</head>
+<body>
+  <h2>🚀 Sequential Redirect</h2>
+  <p>Links will open automatically one after another in this tab.</p>
+  <button onclick="start()">Start</button>
+
+  <script>
+   const links = [
+      "https://aiskillshouse.com/student/qr-mediator.html?uid=3261&promptId=16",
+      "https://aiskillshouse.com/student/qr-mediator.html?uid=3261&promptId=15",
+      "https://aiskillshouse.com/student/qr-mediator.html?uid=3261&promptId=14",
+      "https://aiskillshouse.com/student/qr-mediator.html?uid=3261&promptId=13",
+      "https://aiskillshouse.com/student/qr-mediator.html?uid=3261&promptId=6"
+    ];
+
+    const delay = 5000; // delay between redirects (ms)
+
+    function start() {
+      let i = 0;
+
+      function next() {
+        if (i < links.length) {
+          window.location.href = links[i];
+          i++;
+          setTimeout(next, delay);
+        }
+      }
+
+      next();
+    }
+  </script>
+</body>
+</html>
