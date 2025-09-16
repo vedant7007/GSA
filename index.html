@@ -2,37 +2,85 @@
 <html>
 <head>
   <meta charset="utf-8" />
-  <title>Sequential Redirect</title>
+  <title>Open Link in Background</title>
+  <style>
+    body { font-family: Arial, sans-serif; text-align: center; padding: 30px; }
+    button {
+      padding: 12px 18px;
+      margin: 8px;
+      font-size: 16px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      background: #1f8ef1;
+      color: #fff;
+    }
+    button:active { transform: translateY(1px); }
+    #msg { margin-top: 16px; color: #d00; }
+  </style>
 </head>
 <body>
-  <h2>🚀 Sequential Redirect</h2>
-  <p>Links will open automatically one after another in this tab.</p>
-  <button onclick="start()">Start</button>
+  <h2>Open link in background (click any button)</h2>
+  <p>Click a button — that link will open in a new tab. The current page will try to stay focused.</p>
+
+  <div id="buttons">
+    <button data-url="https://aiskillshouse.com/student/qr-mediator.html?uid=3261&promptId=16">Open Link 1</button>
+    <button data-url="https://aiskillshouse.com/student/qr-mediator.html?uid=3261&promptId=15">Open Link 2</button>
+    <button data-url="https://aiskillshouse.com/student/qr-mediator.html?uid=3261&promptId=14">Open Link 3</button>
+    <button data-url="https://aiskillshouse.com/student/qr-mediator.html?uid=3261&promptId=13">Open Link 4</button>
+    <button data-url="https://aiskillshouse.com/student/qr-mediator.html?uid=3261&promptId=6">Open Link 5</button>
+  </div>
+
+  <div id="msg"></div>
 
   <script>
-   const links = [
-      "https://aiskillshouse.com/student/qr-mediator.html?uid=3261&promptId=16",
-      "https://aiskillshouse.com/student/qr-mediator.html?uid=3261&promptId=15",
-      "https://aiskillshouse.com/student/qr-mediator.html?uid=3261&promptId=14",
-      "https://aiskillshouse.com/student/qr-mediator.html?uid=3261&promptId=13",
-      "https://aiskillshouse.com/student/qr-mediator.html?uid=3261&promptId=6"
-    ];
+    // Replace the data-url values above with your real Gemini links.
+    // Function to open a URL in a new tab while trying to keep current page focused.
+    function openInBackground(url) {
+      // Best-effort method: create an <a> and programmatically click it (counts as user gesture)
+      const a = document.createElement('a');
+      a.href = url;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      // Append to DOM so click event works reliably in some browsers
+      a.style.display = 'none';
+      document.body.appendChild(a);
 
-    const delay = 5000; // delay between redirects (ms)
+      // Try to open
+      try {
+        a.click(); // this usually opens a new tab and preserves current focus depending on browser settings
+        document.body.removeChild(a);
 
-    function start() {
-      let i = 0;
+        // Extra attempt to keep focus on this page (may be ignored by some browsers)
+        try {
+          window.focus();
+        } catch (e) { /* ignore */ }
 
-      function next() {
-        if (i < links.length) {
-          window.location.href = links[i];
-          i++;
-          setTimeout(next, delay);
-        }
+        return true;
+      } catch (err) {
+        document.body.removeChild(a);
+        return false;
       }
-
-      next();
     }
+
+    // Wire up buttons
+    document.getElementById('buttons').addEventListener('click', (ev) => {
+      const btn = ev.target.closest('button');
+      if (!btn) return;
+
+      const url = btn.getAttribute('data-url');
+      if (!url) return;
+
+      const ok = openInBackground(url);
+      const msgEl = document.getElementById('msg');
+      if (!ok) {
+        msgEl.textContent = 'Popup blocked — please allow pop-ups for this site or try right-click → Open in new tab.';
+        // optional: show brief visual hint for users
+        setTimeout(() => { msgEl.textContent = ''; }, 8000);
+      } else {
+        msgEl.textContent = ''; // clear any previous message
+      }
+    });
   </script>
 </body>
 </html>
